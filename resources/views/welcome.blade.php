@@ -1,10 +1,9 @@
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Inventarios</title>
+    <title>TERRASTEP</title>
     <script src="https://cdn.tailwindcss.com  "></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css  " rel="stylesheet">
 </head>
@@ -14,7 +13,7 @@
         <!-- Título principal -->
         <div class="text-center">
             <h1 class="text-4xl font-extrabold text-gray-900 mb-3">
-                Bienvenido al Sistema de Inventarios
+                Bienvenido a Terrastep
             </h1>
             <p class="text-base text-gray-600">
                 Gestiona productos, ventas, clientes y proveedores de manera eficiente con nuestra plataforma integral.
@@ -85,7 +84,7 @@
 
         <!-- Footer -->
         <footer class="text-center text-gray-500 text-xs pt-6 border-t border-gray-200">
-            © {{ date('Y') }} Sistema de Inventarios. Todos los derechos reservados.
+            © {{ date('Y') }} Terrastep. Todos los derechos reservados.
         </footer>
     </div>
 </body>

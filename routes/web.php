@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Route;
 
 // Página de inicio
@@ -62,5 +63,15 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/payment/{product}', [ClientController::class, 'showPayment'])->name('client.showPayment');
     Route::post('/payment/{product}', [ClientController::class, 'processPayment'])->name('client.processPayment');
+    Route::get('/checkout/{product}', [ClientController::class, 'showCheckout'])->name('client.showCheckout');
+    Route::post('/checkout/{product}', [ClientController::class, 'processCheckout'])->name('client.processCheckout');
+    });
 
+    Route::prefix('cart')->middleware(['auth', 'client'])->group(function () {
+    Route::get('/', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/add/{product}', [CartController::class, 'add'])->name('cart.add');
+    Route::delete('/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::delete('/clear', [CartController::class, 'clear'])->name('cart.clear');
+    
+ 
 });

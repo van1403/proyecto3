@@ -25,4 +25,9 @@ class Sale extends Model
     {
         return $this->hasOne(Payment::class);
     }
+    public function shipping()
+    {
+    return $this->hasOne(Shipping::class);
+   }
+
 }
