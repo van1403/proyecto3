@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100">
+<body class="flex flex-col min-h-screen bg-gray-100">
     @auth
         <nav class="bg-blue-600 text-white shadow-lg">
             <div class="max-w-7xl mx-auto px-4">
@@ -50,10 +50,10 @@
         </nav>
     @endauth
 
-    <main>
+    <main class="flex-grow">
         @yield('content')
     </main>
-
+   
     @if(session('success'))
     <div class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
         {{ session('success') }}

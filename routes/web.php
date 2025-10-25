@@ -57,4 +57,10 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/products/{product}', [ClientController::class, 'showProduct'])->name('client.product.show');
     Route::post('/products/{product}/purchase', [ClientController::class, 'purchaseProduct'])->name('client.product.purchase');
     Route::get('/purchase-history', [ClientController::class, 'purchaseHistory'])->name('client.purchase-history');
+    Route::get('/purchase/{id}', [ClientController::class, 'showPurchase'])->name('client.purchase.show');
+    Route::get('/purchase/{id}/receipt', [ClientController::class, 'generateReceipt'])->name('client.purchase.receipt');
+
+    Route::get('/payment/{product}', [ClientController::class, 'showPayment'])->name('client.showPayment');
+    Route::post('/payment/{product}', [ClientController::class, 'processPayment'])->name('client.processPayment');
+
 });

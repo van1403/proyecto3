@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Sale;
 use App\Models\SaleItem;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Payment;
 
 class ClientController extends Controller
 {
@@ -17,62 +19,121 @@ class ClientController extends Controller
         $this->middleware('client');
     }
 
+    // 🏠 Dashboard principal del cliente
     public function dashboard()
     {
         $categories = Category::all();
         $products = Product::where('stock', '>', 0)->get();
+
         return view('client.dashboard', compact('categories', 'products'));
     }
 
+    // 🛍 Productos filtrados por categoría
     public function productsByCategory(Category $category)
     {
         $categories = Category::all();
         $products = Product::where('category_id', $category->id)
-                          ->where('stock', '>', 0)
-                          ->get();
+                           ->where('stock', '>', 0)
+                           ->get();
         
         return view('client.products', compact('categories', 'products', 'category'));
     }
 
+    // 🔎 Ver detalles de un producto específico
     public function showProduct(Product $product)
     {
         return view('client.product-detail', compact('product'));
     }
 
-    public function purchaseProduct(Request $request, Product $product)
+    // 💳 Mostrar pantalla para seleccionar método de pago
+    public function showPayment(Product $product)
+    {
+        return view('client.payment', compact('product'));
+    }
+
+    // 💸 Procesar el pago y registrar la venta
+    public function processPayment(Request $request, Product $product)
     {
         $request->validate([
-            'quantity' => 'required|integer|min:1|max:' . $product->stock,
+            'method' => 'required|string',
         ]);
 
-        // Create sale
+        // Crear la venta
         $sale = Sale::create([
             'user_id' => Auth::id(),
-            'total_amount' => $product->price * $request->quantity,
+            'total_amount' => $product->price,
         ]);
 
-        // Create sale item
+        // Crear el detalle de venta
         SaleItem::create([
             'sale_id' => $sale->id,
             'product_id' => $product->id,
-            'quantity' => $request->quantity,
+            'quantity' => 1,
             'unit_price' => $product->price,
-            'subtotal' => $product->price * $request->quantity,
+            'subtotal' => $product->price,
         ]);
 
-        // Reduce stock
-        $product->reduceStock($request->quantity);
+        // Crear el pago asociado
+        Payment::create([
+            'sale_id' => $sale->id,
+            'method' => $request->method,
+            'transaction_id' => 'TXN-' . strtoupper(uniqid()),
+            'amount' => $product->price,
+        ]);
 
-        return redirect()->route('client.dashboard')->with('success', 'Compra realizada exitosamente.');
+        // Reducir el stock del producto
+        $product->reduceStock(1);
+
+        return redirect()->route('client.purchase-history')
+                         ->with('success', 'Compra realizada exitosamente con método de pago: ' . $request->method);
     }
 
+    // 📜 Historial de compras del cliente
     public function purchaseHistory()
     {
         $sales = Sale::with('items.product')
-                    ->where('user_id', Auth::id())
-                    ->orderBy('created_at', 'desc')
-                    ->get();
+                     ->where('user_id', Auth::id())
+                     ->orderBy('created_at', 'desc')
+                     ->get();
         
         return view('client.purchase-history', compact('sales'));
     }
+
+    // 🔍 Ver detalles de una compra específica
+    public function showPurchase($id)
+    {
+        $sale = Sale::with(['items.product', 'payment'])
+                    ->where('user_id', Auth::id())
+                    ->findOrFail($id);
+
+        return view('client.purchase-detail', compact('sale'));
+    }
+
+    // 🧾 Generar y descargar la boleta PDF
+    public function generateReceipt($id)
+    {
+        $sale = Sale::with(['items.product', 'payment'])
+                    ->where('user_id', Auth::id())
+                    ->findOrFail($id);
+
+        $pdf = Pdf::loadView('client.receipt', compact('sale'))
+                  ->setPaper('a4', 'portrait');
+
+        return $pdf->download("boleta_venta_{$sale->id}.pdf");
+    }
+
+    // (Opcional) 🖨 Mostrar boleta en el navegador sin descargar
+    /*
+    public function viewReceipt($id)
+    {
+        $sale = Sale::with(['items.product', 'payment'])
+                    ->where('user_id', Auth::id())
+                    ->findOrFail($id);
+
+        $pdf = Pdf::loadView('client.receipt', compact('sale'))
+                  ->setPaper('a4', 'portrait');
+
+        return $pdf->stream("boleta_venta_{$sale->id}.pdf"); // Mostrar en el navegador
+    }
+    */
 }
