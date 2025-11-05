@@ -39,44 +39,28 @@
     {{-- 💳 Información del Pago --}}
     <p class="section-title">Método de Pago</p>
     <table width="100%">
-        @if($sale->payment)
-            <tr>
-                <td><strong>Método:</strong> {{ $sale->payment->method }}</td>
-                <td><strong>ID Transacción:</strong> {{ $sale->payment->transaction_id }}</td>
-            </tr>
-            <tr>
-                <td colspan="2"><strong>Monto Pagado:</strong> S/ {{ number_format($sale->payment->amount, 2) }}</td>
-            </tr>
-        @else
-            <tr><td colspan="2">No se registró información de pago.</td></tr>
-        @endif
+        <tr>
+            <td><strong>Método:</strong>
+                {{ $sale->payment_method ? ucfirst($sale->payment_method) : 'No registrado' }}
+            </td>
+        </tr>
     </table>
 
     {{-- 🚚 Información de Entrega --}}
-    <p class="section-title">Información de Entrega</p>
-    @if($sale->shipping)
-        <table width="100%">
-            <tr>
-                <td><strong>Tipo de Entrega:</strong> {{ $sale->shipping->delivery_type }}</td>
-                <td><strong>Costo:</strong> S/ {{ number_format($sale->shipping->shipping_cost, 2) }}</td>
-            </tr>
-            @if($sale->shipping->delivery_type === 'Envío')
-            <tr><td colspan="2"><strong>Dirección:</strong> {{ $sale->shipping->address }}</td></tr>
-            <tr>
-                <td><strong>Ciudad:</strong> {{ $sale->shipping->city }}</td>
-                <td><strong>Región:</strong> {{ $sale->shipping->region }}</td>
-            </tr>
-            <tr>
-                <td><strong>Código Postal:</strong> {{ $sale->shipping->postal_code }}</td>
-                <td><strong>Teléfono:</strong> {{ $sale->shipping->phone }}</td>
-            </tr>
-            @else
-            <tr><td colspan="2"><strong>Retiro en tienda:</strong> El cliente recogerá el pedido en sucursal.</td></tr>
-            @endif
-        </table>
-    @else
-        <p>No se registró información de envío.</p>
-    @endif
+    <p class="section-title">Método de Entrega</p>
+    <table width="100%">
+        <tr>
+            <td><strong>Tipo de Entrega:</strong>
+                {{ $sale->delivery_method === 'envio' ? 'Envío a domicilio' : 'Retiro en tienda' }}
+            </td>
+        </tr>
+        @if($sale->delivery_method === 'envio' && $sale->address)
+            <tr><td><strong>Dirección:</strong> {{ $sale->address }}</td></tr>
+            <tr><td><strong>Costo de Envío:</strong> S/ 10.00</td></tr>
+        @else
+            <tr><td><strong>Costo de Envío:</strong> S/ 0.00</td></tr>
+        @endif
+    </table>
 
     {{-- 🛍️ Productos --}}
     <p class="section-title">Detalle de Productos</p>
@@ -103,9 +87,16 @@
 
     {{-- 💰 Totales --}}
     <p class="total">
-        Subtotal: S/ {{ number_format($sale->items->sum('subtotal'), 2) }} <br>
-        Envío: S/ {{ number_format($sale->shipping->shipping_cost ?? 0, 2) }} <br>
-        <span class="highlight">Total: S/ {{ number_format($sale->total_amount, 2) }}</span>
+        Subtotal: S/
+        {{ number_format($sale->items->sum('subtotal') - ($sale->delivery_method === 'envio' ? 10 : 0), 2) }} <br>
+
+        @if($sale->delivery_method === 'envio')
+            Envío: S/ 10.00 <br>
+        @endif
+
+        <span class="highlight">
+            Total: S/ {{ number_format($sale->total_amount, 2) }}
+        </span>
     </p>
 
     {{-- 🧾 Footer --}}

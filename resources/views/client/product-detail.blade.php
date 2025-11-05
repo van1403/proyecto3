@@ -39,12 +39,33 @@
                 </span>
             </div>
 
-            {{-- 🛒 Botón de compra --}}
+            {{-- 🛒 Agregar al carrito y compra directa --}}
             @if($product->stock > 0)
-                <div class="mt-8">
+                <div class="mt-8 space-y-4">
+
+                    {{-- Formulario para agregar al carrito --}}
+                    <form action="{{ route('cart.add', $product->id) }}" method="POST" class="space-y-4">
+                        @csrf
+                        <div class="flex items-center space-x-4">
+                            <div>
+                                <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Cantidad
+                                </label>
+                                <input type="number" name="quantity" id="quantity" value="1" min="1" max="{{ $product->stock }}" 
+                                       class="w-20 border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+
+                            <button type="submit" 
+                                class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-700 hover:to-indigo-600 text-white py-3 rounded-lg font-semibold text-lg text-center shadow-md transition duration-200">
+                                <i class="fas fa-cart-plus mr-2"></i> Agregar al Carrito
+                            </button>
+                        </div>
+                    </form>
+
+                    {{-- Compra directa --}}
                     <a href="{{ route('client.showCheckout', $product->id) }}" 
-                        class="block w-full bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 text-white py-3 px-6 rounded-lg font-semibold text-lg text-center shadow-md transition duration-200">
-                        <i class="fas fa-shopping-cart mr-2"></i> Comprar Ahora
+                        class="block w-full bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg font-semibold text-lg text-center shadow-md transition duration-200">
+                        <i class="fas fa-bolt mr-2"></i> Comprar Ahora
                     </a>
                 </div>
             @else

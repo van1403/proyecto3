@@ -52,26 +52,40 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 });
 
 // Rutas de Cliente
-    Route::prefix('client')->middleware(['auth', 'client'])->group(function () {
+// Rutas de Cliente
+Route::prefix('client')->group(function () {
+    // 🏠 Dashboard y navegación
     Route::get('/dashboard', [ClientController::class, 'dashboard'])->name('client.dashboard');
     Route::get('/products/category/{category}', [ClientController::class, 'productsByCategory'])->name('client.products.by-category');
     Route::get('/products/{product}', [ClientController::class, 'showProduct'])->name('client.product.show');
+
+    // 🛍 Compras directas
     Route::post('/products/{product}/purchase', [ClientController::class, 'purchaseProduct'])->name('client.product.purchase');
     Route::get('/purchase-history', [ClientController::class, 'purchaseHistory'])->name('client.purchase-history');
     Route::get('/purchase/{id}', [ClientController::class, 'showPurchase'])->name('client.purchase.show');
     Route::get('/purchase/{id}/receipt', [ClientController::class, 'generateReceipt'])->name('client.purchase.receipt');
 
+    // 🛒 Carrito de compras
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
+    Route::post('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
+    Route::get('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::get('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+
+    // 💰 Checkout del carrito (⚠️ DEBEN IR ANTES de {product})
+    Route::get('/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
+    Route::post('/checkout/confirmation', [CartController::class, 'confirm'])->name('cart.confirmation');
+
+    // 💳 Métodos de pago y checkout por producto
     Route::get('/payment/{product}', [ClientController::class, 'showPayment'])->name('client.showPayment');
     Route::post('/payment/{product}', [ClientController::class, 'processPayment'])->name('client.processPayment');
     Route::get('/checkout/{product}', [ClientController::class, 'showCheckout'])->name('client.showCheckout');
     Route::post('/checkout/{product}', [ClientController::class, 'processCheckout'])->name('client.processCheckout');
-    });
+});
 
-    Route::prefix('cart')->middleware(['auth', 'client'])->group(function () {
-    Route::get('/', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/add/{product}', [CartController::class, 'add'])->name('cart.add');
-    Route::delete('/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
-    Route::delete('/clear', [CartController::class, 'clear'])->name('cart.clear');
+
+
+
     
  
-});
+

@@ -19,16 +19,65 @@ class AdminController extends Controller
     }
 
     public function dashboard()
-    {
-        $stats = [
-            'products' => Product::count(),
-            'sales_today' => Sale::whereDate('created_at', today())->count(),
-            'clients' => User::where('role', 'client')->count(),
-            'suppliers' => Supplier::count(),
-        ];
+{
+    // 📊 Resumen general
+    $stats = [
+        'products' => Product::count(),
+        'sales_today' => Sale::whereDate('created_at', today())->count(),
+        'clients' => User::where('role', 'client')->count(),
+        'suppliers' => Supplier::count(),
+        'total_sales' => Sale::count(), // 🔹 Esta clave antes no existía
+        'total_revenue' => Sale::sum('total_amount'), // 🔹 Nueva también
+    ];
 
-        return view('admin.dashboard', compact('stats'));
-    }
+    // 📈 Ventas por mes (últimos 6 meses)
+    $monthlySales = Sale::selectRaw('MONTH(created_at) as month, SUM(total_amount) as total')
+        ->groupBy('month')
+        ->orderBy('month', 'asc')
+        ->take(6)
+        ->get();
+
+    // 🧮 Crecimiento mensual (%)
+    $currentMonth = now()->month;
+    $previousMonth = now()->subMonth()->month;
+
+    $salesCurrent = Sale::whereMonth('created_at', $currentMonth)->sum('total_amount');
+    $salesPrevious = Sale::whereMonth('created_at', $previousMonth)->sum('total_amount');
+    $growth = $salesPrevious > 0 ? (($salesCurrent - $salesPrevious) / $salesPrevious) * 100 : 0;
+
+    // 🛍️ Productos más vendidos
+    $topProducts = \DB::table('sale_items')
+        ->join('products', 'sale_items.product_id', '=', 'products.id')
+        ->select('products.name', \DB::raw('SUM(sale_items.quantity) as total_sold'))
+        ->groupBy('products.name')
+        ->orderByDesc('total_sold')
+        ->take(5)
+        ->get();
+
+    // 🔔 Productos con bajo stock
+    $lowStock = Product::where('stock', '<', 5)->get();
+
+    // 📦 Productos sin stock
+    $outOfStock = Product::where('stock', '=', 0)->get();
+
+    // 🧾 Últimas ventas
+    $recentSales = Sale::with('user')->latest()->take(5)->get();
+
+    // 💬 Comentarios (futuro módulo)
+    $comments = [];
+
+    return view('admin.dashboard', compact(
+        'stats',
+        'monthlySales',
+        'growth',
+        'topProducts',
+        'lowStock',
+        'outOfStock',
+        'recentSales',
+        'comments'
+    ));
+}
+
 
     // Categories
     public function categories()

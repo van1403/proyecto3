@@ -26,7 +26,8 @@
     <nav class="bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-500 text-white shadow-md sticky top-0 z-50 backdrop-blur-lg bg-opacity-95">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center py-4">
-                {{-- Logo --}}
+
+                {{-- 🚀 Logo --}}
                 <div class="flex items-center space-x-3">
                     <i class="fas fa-cubes text-2xl text-yellow-300"></i>
                     <a href="{{ Auth::user()->isAdmin() ? route('admin.dashboard') : route('client.dashboard') }}" 
@@ -35,7 +36,7 @@
                     </a>
                 </div>
 
-                {{-- Menú --}}
+                {{-- 📋 Menú principal --}}
                 @if(Auth::user()->isAdmin())
                     <div class="hidden md:flex space-x-6 text-sm font-medium">
                         <a href="{{ route('admin.dashboard') }}" class="hover:text-yellow-300 transition">Dashboard</a>
@@ -45,13 +46,23 @@
                         <a href="{{ route('admin.categories') }}" class="hover:text-yellow-300 transition">Categorías</a>
                     </div>
                 @else
-                    <div class="hidden md:flex space-x-6 text-sm font-medium">
+                    <div class="hidden md:flex items-center space-x-6 text-sm font-medium">
                         <a href="{{ route('client.dashboard') }}" class="hover:text-yellow-300 transition">Tienda</a>
                         <a href="{{ route('client.purchase-history') }}" class="hover:text-yellow-300 transition">Mis Compras</a>
+
+                        {{-- 🛒 Carrito --}}
+                        <a href="{{ route('cart.index') }}" class="relative hover:text-yellow-300 transition">
+                            <i class="fas fa-shopping-cart text-lg"></i>
+                            @if(session('cart') && count(session('cart')) > 0)
+                                <span class="absolute -top-2 -right-3 bg-yellow-400 text-black text-xs font-bold rounded-full px-1.5 py-0.5 animate-bounce shadow">
+                                    {{ count(session('cart')) }}
+                                </span>
+                            @endif
+                        </a>
                     </div>
                 @endif
 
-                {{-- Usuario --}}
+                {{-- 👤 Usuario --}}
                 <div class="flex items-center space-x-4">
                     <span class="text-sm font-semibold">👋 {{ Auth::user()->name }}</span>
                     <form method="POST" action="{{ route('logout') }}">
