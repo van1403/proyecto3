@@ -14,7 +14,7 @@
                     <p class="text-gray-500">Realizada el {{ $sale->created_at->format('d/m/Y \a \l\a\s H:i') }}</p>
                 </div>
                 <div class="text-right">
-                    <h3 class="text-2xl font-bold text-green-600">${{ number_format($sale->total_amount, 2) }}</h3>
+                    <h3 class="text-2xl font-bold text-green-600">S/ {{ number_format($sale->total_amount, 2) }}</h3>
                 </div>
             </div>
 
@@ -30,18 +30,28 @@
                             @endif
                             <div>
                                 <p class="font-medium text-gray-900">{{ $item->product->name }}</p>
-                                <p class="text-gray-500 text-sm">${{ number_format($item->unit_price, 2) }} c/u</p>
+                                <p class="text-gray-500 text-sm">S/ {{ number_format($item->unit_price, 2) }} c/u</p>
                             </div>
                         </div>
                         <div class="text-right">
                             <p class="text-sm text-gray-600">Cantidad: {{ $item->quantity }}</p>
-                            <p class="text-green-600 font-semibold">${{ number_format($item->subtotal, 2) }}</p>
+                            <p class="text-green-600 font-semibold">S/ {{ number_format($item->subtotal, 2) }}</p>
                         </div>
                     </div>
                 @endforeach
             </div>
 
-            {{-- Botones de acción --}}
+            {{-- 🚚 Información breve --}}
+            <div class="mt-4 text-sm text-gray-600">
+                @if($sale->shipping)
+                    <p><strong>Entrega:</strong> {{ $sale->shipping->delivery_type }}</p>
+                @endif
+                @if($sale->payment)
+                    <p><strong>Pago:</strong> {{ ucfirst($sale->payment->method) }}</p>
+                @endif
+            </div>
+
+            {{-- Botones --}}
             <div class="mt-5 flex justify-end space-x-3">
                 <a href="{{ route('client.purchase.show', $sale->id) }}" 
                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition duration-150">
@@ -50,7 +60,7 @@
 
                 <a href="{{ route('client.purchase.receipt', $sale->id) }}" 
                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow transition duration-150">
-                    🧾 Descargar Boleta
+                    🧾 Boleta
                 </a>
             </div>
         </div>
@@ -58,7 +68,6 @@
         <div class="bg-white shadow-sm rounded-lg p-6 text-center">
             <i class="fas fa-shopping-basket text-4xl text-gray-400 mb-3"></i>
             <h3 class="text-lg font-medium text-gray-900">Aún no tienes compras registradas.</h3>
-            <p class="text-gray-500 mt-2">Tus futuras compras aparecerán aquí.</p>
         </div>
     @endforelse
 </div>

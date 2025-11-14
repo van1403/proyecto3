@@ -10,32 +10,29 @@ class Sale extends Model
     use HasFactory;
 
     protected $fillable = [
-    'user_id',
-    'total_amount',
-    'delivery_method',
-    'address',
-    'payment_method',
+        'user_id',
+        'total_amount',
     ];
 
-    // 👤 Relación con el usuario que realizó la compra
+    // 👤 Usuario que realizó la compra
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // 🧾 Relación con los productos comprados
+    // 🧾 Productos comprados
     public function items()
     {
         return $this->hasMany(SaleItem::class);
     }
 
-    // 💳 Si tienes tabla separada de pagos (opcional)
+    // 💳 Información del pago (relación 1:1)
     public function payment()
     {
         return $this->hasOne(Payment::class);
     }
 
-    // 🚚 Si tienes tabla separada de envíos (opcional)
+    // 🚚 Información del envío (relación 1:1)
     public function shipping()
     {
         return $this->hasOne(Shipping::class);

@@ -16,6 +16,7 @@
         <form class="mt-8 space-y-6" action="{{ route('login') }}" method="POST">
             @csrf
             <div class="space-y-5">
+                {{-- 📧 Correo --}}
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
                     <input id="email" name="email" type="email" required 
@@ -26,6 +27,7 @@
                     @enderror
                 </div>
 
+                {{-- 🔒 Contraseña --}}
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
                     <input id="password" name="password" type="password" required 
@@ -37,6 +39,14 @@
                 </div>
             </div>
 
+            {{-- 🔗 Enlace "Olvidaste tu contraseña" --}}
+            <div class="text-right mt-2">
+                <a href="{{ route('password.request') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                    ¿Olvidaste tu contraseña?
+                </a>
+            </div>
+
+            {{-- 🚪 Botón de inicio de sesión --}}
             <div class="pt-4">
                 <button type="submit" 
                         class="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold text-lg hover:bg-blue-700 transition duration-200">
@@ -44,6 +54,7 @@
                 </button>
             </div>
 
+            {{-- 📝 Enlace para registrarse --}}
             <div class="text-center mt-6">
                 <p class="text-sm text-gray-600">
                     ¿No tienes cuenta? 
